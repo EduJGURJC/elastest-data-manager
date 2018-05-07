@@ -4,12 +4,14 @@ import java.util.Objects;
 import io.swagger.annotations.ApiModel;
 import java.util.ArrayList;
 import java.util.List;
+import javax.validation.Valid;
 import javax.validation.constraints.*;
+
 /**
  * Collection containing SuTs
  */
 @ApiModel(description = "Collection containing SuTs")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-07-12T12:44:56.423Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-10-09T10:54:45.530Z")
 
 public class SutsResponse extends ArrayList<String>  {
 

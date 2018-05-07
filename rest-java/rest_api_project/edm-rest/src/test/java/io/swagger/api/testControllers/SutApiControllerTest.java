@@ -4,8 +4,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import io.swagger.Swagger2SpringBoot;
-import io.swagger.api.SutApiController;
 
 import org.junit.After;
 import org.junit.Before;
@@ -14,12 +12,14 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
+import io.swagger.Swagger2SpringBoot;
+import io.swagger.api.SutApiController;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration (classes = {
@@ -30,9 +30,6 @@ public class SutApiControllerTest {
 
 	private MockMvc mockMvc;
 	
-	@Autowired
-	private MockHttpServletRequest request;
-
 	@Autowired
     private WebApplicationContext webApplicationContext;
 	
@@ -48,26 +45,34 @@ public class SutApiControllerTest {
 	
 	
 	//-------------------- Sut backupSutWithId --------------------//
-	// 200, 400, 405, 520
 	
 	@Test
-	public void backupSutWithId_GET_415_No_MediaType() throws Exception{
+	public void backupSutWithId_GET_415_No_MediaType() throws Exception {
 		mockMvc
-			.perform(get("/sut/1"))
-			.andExpect(status().is(415));
+		.perform(post("/sut/backup/1"))
+		.andExpect(status().is(415));
+	}
+
+	@Test
+	public void backupSutWithId_GET_405_No_MediaType_Wrong_URL() throws Exception {
+		mockMvc
+		.perform(post("/sut/backup"))
+		.andExpect(status().is(405));
+	}
+
+	
+	@Test
+	public void backupSutWithId_GET_405_Wrong_URL() throws Exception {
+		mockMvc
+			.perform(post("/sut/backup")
+					.contentType(MediaType.APPLICATION_JSON_UTF8))
+			.andExpect(status().is(405));
 	}
 	
 	@Test
-	public void backupSutWithId_GET_415_No_MediaType_Wrong_URL() throws Exception{
+	public void backupSutWithId_GET_200() throws Exception {
 		mockMvc
-			.perform(get("/sut/"))
-			.andExpect(status().is(415));
-	}
-	
-	@Test
-	public void backupSutWithId_GET_200() throws Exception{
-		mockMvc
-			.perform(get("/sut/1")
+			.perform(post("/sut/backup/1")
 					.contentType(MediaType.APPLICATION_JSON_UTF8))
 			.andExpect(status().isOk());
 	}
@@ -112,14 +117,14 @@ public class SutApiControllerTest {
 	@Test
 	public void restoreSutWithId_POST_415_No_MediaType_No_JSON() throws Exception{
 		mockMvc
-			.perform(post("/sut/1"))
+			.perform(post("/sut/restore/1"))
 			.andExpect(status().is(415));
 	}
 	
 	@Test
 	public void restoreSutWithId_POST_400_No_JSON() throws Exception{
 		mockMvc
-			.perform(post("/sut/1")
+			.perform(post("/sut/restore/1")
 					.contentType(MediaType.APPLICATION_JSON_UTF8))
 			.andExpect(status().is(400));
 	}
@@ -127,14 +132,14 @@ public class SutApiControllerTest {
 	@Test
 	public void restoreSutWithId_POST_405_No_MediaType_WrongUrl_No_JSON() throws Exception{
 		mockMvc
-			.perform(post("/sut"))
+			.perform(post("/sut/restore"))
 			.andExpect(status().is(405));
 	}
 	
 	@Test
 	public void restoreSutWithId_POST_400_JSON_BAD() throws Exception{
 		mockMvc
-			.perform(post("/sut/1")
+			.perform(post("/sut/restore/1")
 					.contentType(MediaType.APPLICATION_JSON_UTF8) 
 					.content( SutApiControllerTest.jsonResponse_BAD() ))
 			.andExpect(status().is(400));
@@ -143,11 +148,12 @@ public class SutApiControllerTest {
 	@Test
 	public void restoreSutWithId_POST_200_JSON_GOOD() throws Exception{
 		mockMvc
-			.perform(post("/sut/1")
+			.perform(post("/sut/restore/1")
 					.contentType(MediaType.APPLICATION_JSON_UTF8) 
 					.content( SutApiControllerTest.jsonResponse_GOOD() ))
 			.andExpect(status().is(200));
 	}
+	
 	
 	//-------------------- Sut retrieveAllSut --------------------//
 	// 200, 520

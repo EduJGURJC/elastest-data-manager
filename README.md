@@ -1,6 +1,6 @@
 [![License badge](https://img.shields.io/badge/license-Apache2-green.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Documentation badge](https://img.shields.io/badge/docs-latest-brightgreen.svg)](http://elastest.io/docs/)
-[![Build Status](https://ci.elastest.io/jenkins/buildStatus/icon?job=elastest-data-manager/edm-jenkinsfile/master)](https://ci.elastest.io/jenkins/job/elastest-data-manager/edm-jenkinsfile/master)
+[![Build Status](https://ci.elastest.io/jenkins/buildStatus/icon?job=elastest-data-manager/edm/master)](https://ci.elastest.io/jenkins/job/elastest-data-manager/edm/master)
 [![codecov](https://codecov.io/gh/elastest/elastest-data-manager/branch/master/graph/badge.svg)](https://codecov.io/gh/elastest/elastest-data-manager)
 
 
@@ -12,14 +12,15 @@ Copyright © 2017-2019 [<member>]. Licensed under
 elastest-data-manager
 =================
 
-The EDM is responsible for installing, managing and uninstalling the different persistent services available for the whole ElasTest platform.
+EDM is the ElasTest component providing persistence services to the ElasTest platform.
 
 The persistent services under the responsibility of EDM are the following:
 
 - Relational database (MySQL)
-- Persistance control service (API-including Alluxio, S3 & HDFS compatible)
+- Persistence control service (API-including Alluxio, S3 & HDFS compatible.)
 - ElasticSearch (for both logs and metrics)
 - API for exporting and importing data
+- Web-based file manager in order to visually manage data.
 
 ## Prerequisites
 - Install Docker Compose: https://docs.docker.com/compose/install/
@@ -124,6 +125,8 @@ Each component provide its own web UI. Open you browser at one of the URLs below
 | Kibana Web Interface		| [http://localhost:5601](http://localhost:5601) |
 | Cerebro Web Interface		| [http://localhost:9400/#/overview?host=http:%2F%2Felasticsearch:9200](http://localhost:9400/#/overview?host=http:%2F%2Felasticsearch:9200) |
 | REST API Swagger UI		| [http://localhost:8000/edm](http://localhost:8000/edm) |
+| CloudCommander UI         | [http://localhost:8001](http://localhost:8001) |
+
 
 ### Scaling the number of instances
 If you want to increase the number of HDFS datanodes in your cluster
@@ -178,7 +181,7 @@ You can try the following examples:
 
 ### Elasticsearch
 Elasticsearch is listening at localhost:9200 if you want to access it with your own client interface.
-For example you can install the Sense Chrome plugin https://chrome.google.com/webstore/detail/sense-beta/lhjgkmllcaadmopgmanpapmpjgmfcfig?hl=en).
+For example you can install the ElasticSearch Toolbox Chrome plugin https://chrome.google.com/webstore/detail/elasticsearch-toolbox/focdbmjgdonlpdknobfghplhmafpgfbp).
 
 You can also connect to it and run queries through the provided Cerebro Web Interface.
 In order to connect to Elasticsearch from Cerebro use hostname: elasticsearch and port: 9200

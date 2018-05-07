@@ -2,12 +2,8 @@ node('docker'){
     stage "Container Prep"
         echo("the node is up")
         sh 'echo 262144 | sudo tee /proc/sys/vm/max_map_count'
-        //sysctl -w vm.max_map_count=262144
-        //sysctl vm.max_map_count
-        def mycontainer = docker.image('sgioldasis/ci-docker-in-docker:latest')
-        // def mycontainer = docker.image('elastest/ci-docker-compose-siblings')
-        //def mycontainer = docker.image('elastest/docker-siblings:latest')
-        mycontainer.pull() // make sure we have the latest available from Docker Hub
+        def mycontainer = docker.image('sgioldasis/ci-docker-in-docker')
+        mycontainer.pull() 
         mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw") {
             git 'https://github.com/elastest/elastest-data-manager.git'
 
@@ -66,9 +62,9 @@ node('docker'){
                 // def cerebro_image = docker.build("elastest/edm-cerebro:0.1","./cerebro")
                 def cerebro_image = docker.build("elastest/edm-cerebro:latest","./cerebro")
 
-            // stage "Build MySQL image - Package"
-            //    echo ("building..")
-            //    def mysql_image = docker.build("elastest/edm-mysql:0.1","./mysql")
+            stage "Build MySQL image - Package"
+               echo ("building..")
+               def mysql_image = docker.build("elastest/edm-mysql:latest","./mysql")
 
             // stage "Run EDM docker-compose"
             //     sh 'chmod +x bin/* && bin/teardown-ci.sh && bin/startup-ci.sh'
@@ -116,7 +112,7 @@ node('docker'){
                         elasticsearch_image.push()
                         kibana_image.push()
                         cerebro_image.push()
-                        // mysql_image.push()
+                        mysql_image.push()
                     }
 
         }

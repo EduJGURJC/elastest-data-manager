@@ -61,7 +61,7 @@ case ${service,,} in
     ;;
   proxy)
     # bin/alluxio fs mount /tmpfiles file:///tmpfiles
-    bin/alluxio fs mount /hdfs hdfs://hdfs-namenode:9000/
+    bin/alluxio fs mount /hdfs hdfs://edm-hdfs-namenode:9000/
     integration/docker/bin/alluxio-proxy.sh
     ;;
   *)

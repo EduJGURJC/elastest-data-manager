@@ -23,18 +23,31 @@ ENV HADOOP_OPTS		-Djava.library.path=/usr/local/hadoop/lib/native
 ENV PATH		$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
 
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y wget libzip2 libsnappy1 libssl-dev && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y wget libzip2 libsnappy1 libssl-dev nfs-common xterm && \
     wget http://archive.apache.org/dist/hadoop/core/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz && \
-    apt-get remove -y wget && \
     rm -rf /var/lib/apt/lists/* && \
     tar -zxf /hadoop-$HADOOP_VERSION.tar.gz && \
     rm /hadoop-$HADOOP_VERSION.tar.gz && \
     mv hadoop-$HADOOP_VERSION /usr/local/hadoop && \
     mkdir -p /usr/local/hadoop/logs
+RUN apt-get 
 
+
+####################
+# CloudCommander
+####################
+RUN apt-get update && apt-get install -y curl
+RUN curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+RUN apt-get install -y nodejs
+RUN npm i cloudcmd -g
+COPY initconf/cloudcmd.json /cloudcmd.json
+COPY initconf/cloudcmd.json /root/.cloudcmd.json
 
 # Overwrite default HADOOP configuration files with our config files
 COPY conf  $HADOOP_HOME/etc/hadoop/
+COPY initconf/rpcbind.override /etc/init/rpcbind.override
+COPY initconf/namenode.sh /namenode.sh
+RUN chmod +x /namenode.sh
 
 # Formatting HDFS
 RUN mkdir -p /data/dfs/data /data/dfs/name /data/dfs/namesecondary && \

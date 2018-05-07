@@ -14,6 +14,10 @@ ENV ALLUXIO_HOME        /opt/alluxio
 ENV PATH                $PATH:$ALLUXIO_HOME/bin
 ENV JAVA_HOME           /usr/lib/jvm/java-8-oracle
 
+#####adding conf files [to be used by alluxio, hadoop, spark]
+ENV PATH                /scripts:$PATH
+ADD scripts/* /scripts/
+
 # add webupd8 repository
 RUN \
     echo "===> add webupd8 repository..."  && \
@@ -30,7 +34,8 @@ RUN \
     \
     \
     echo "===> install various tools"  && \
-    DEBIAN_FRONTEND=noninteractive  apt-get install -y --force-yes wget tar maven mysql-client && \
+    DEBIAN_FRONTEND=noninteractive  apt-get install -y --force-yes wget tar maven mysql-client python python-lxml python-setuptools python-pip && \
+    pip install -r /scripts/requirements.txt && \
     \
     \
     echo "===> install Alluxio"  && \

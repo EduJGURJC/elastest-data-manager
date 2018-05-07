@@ -2,16 +2,18 @@ version: '2.1'
 
 services:
 
-  hdfs-namenode:
-    # container_name: hdfs-namenode
+  edm-hdfs-namenode:
+    # container_name: edm-hdfs-namenode
     image: elastest/edm-hadoop:latest
     # build: ./hadoop
-    command: hdfs namenode
+    command: [ "sh", "-c", "/namenode.sh" ]
+    privileged: true
     ports:
         - "50070:50070"
         - "9000:9000"
         - "8020:8020"
-    hostname: hdfs-namenode
+        - "8001:8001"
+    hostname: edm-hdfs-namenode
     networks:
         - elastest
 
@@ -19,13 +21,13 @@ services:
     # container_name: hdfs-datanode
     image: elastest/edm-hadoop:latest
     # build: ./hadoop
-    command: hdfs datanode
+    command: [ "sh", "-c", "hdfs datanode" ]
     # The host port is randomly assigned by Docker,
     # to allow scaling to multiple DataNodes on the same host
     ports:
         - "50075"
     links:
-        - hdfs-namenode
+        - edm-hdfs-namenode
     networks:
         - elastest
 
@@ -43,9 +45,9 @@ services:
     environment:
       - ALLUXIO_MASTER_HOSTNAME=alluxio-master
       - ALLUXIO_UNDERFS_ADDRESS=/underStorage
-      # - ALLUXIO_UNDERFS_ADDRESS=hdfs://hdfs-namenode:9000
+      # - ALLUXIO_UNDERFS_ADDRESS=hdfs://edm-hdfs-namenode:9000
     links:
-        - hdfs-namenode
+        - edm-hdfs-namenode
     hostname: alluxio-master
     networks:
         - elastest
@@ -61,7 +63,7 @@ services:
     volumes:
       - ./alluxio/data:/underStorage
     links:
-      - hdfs-namenode
+      - edm-hdfs-namenode
       - alluxio-master
     #    privileged: true         ### enable to use ramfs with docker. otherwise it will use disk
     environment:
@@ -69,7 +71,7 @@ services:
       - ALLUXIO_RAM_FOLDER=/mnt/ramdisk
       - ALLUXIO_WORKER_MEMORY_SIZE=1GB
       - ALLUXIO_UNDERFS_ADDRESS=/underStorage
-      # - ALLUXIO_UNDERFS_ADDRESS=hdfs://hdfs-namenode:9000
+      # - ALLUXIO_UNDERFS_ADDRESS=hdfs://edm-hdfs-namenode:9000
     networks:
         - elastest
 
@@ -97,7 +99,6 @@ services:
       - ./rest-java/rest_api_project/deployment:/usr/local/tomcat/webapps
       - ./rest-java/rest_api_project/edm-rest:/usr/src/edm-rest
       - ./rest-java/alluxio_conf:/opt/alluxio/conf
-      # - ./rest-java/scripts:/scripts
       - ./backup:/backup
     links:
       - alluxio-master
@@ -124,7 +125,7 @@ services:
       - ALLUXIO_MASTER_HOSTNAME=alluxio-master
       # - ALLUXIO_RAM_FOLDER=/mnt/ramdisk
       # - ALLUXIO_WORKER_MEMORY_SIZE=1GB
-      # - ALLUXIO_UNDERFS_ADDRESS=hdfs://hdfs-namenode:9000
+      # - ALLUXIO_UNDERFS_ADDRESS=hdfs://edm-hdfs-namenode:9000
     networks:
         - elastest
 
@@ -214,8 +215,8 @@ services:
 
   mysql:
     # container_name: mysql
-    # image: elastest/edm-mysql:0.1
-    image: mysql:5.7
+    image: elastest/edm-mysql:latest
+    # image: mysql:5.7
     # build: ./mysql
     ports:
       - "3306:3306"
@@ -228,8 +229,8 @@ services:
     volumes:
       # - mysql_data:/var/lib/mysql
       - ./mysql/data:/var/lib/mysql
-      - ./mysql/init:/docker-entrypoint-initdb.d
-      - ./mysql/config:/etc/mysql/conf.d
+      # - ./mysql/init:/docker-entrypoint-initdb.d
+      # - ./mysql/config:/etc/mysql/conf.d
     # restart: always
     networks:
       - elastest

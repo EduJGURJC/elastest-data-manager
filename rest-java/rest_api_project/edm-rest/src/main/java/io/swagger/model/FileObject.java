@@ -6,11 +6,13 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import javax.validation.Valid;
 import javax.validation.constraints.*;
+
 /**
  * FileObject
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-07-12T12:44:56.423Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-10-09T10:54:45.530Z")
 
 public class FileObject   {
   /**
@@ -76,6 +78,8 @@ public class FileObject   {
    * @return filesystem
   **/
   @ApiModelProperty(example = "s3", value = "")
+
+
   public FilesystemEnum getFilesystem() {
     return filesystem;
   }
@@ -94,6 +98,8 @@ public class FileObject   {
    * @return location
   **/
   @ApiModelProperty(example = "/MyModule/MyLocation", value = "Can be empty or can contain any valid folder Path. Should start with /. It is recommended to start always with the callers module 3 letters identifier")
+
+
   public String getLocation() {
     return location;
   }
@@ -112,6 +118,8 @@ public class FileObject   {
    * @return memberOfSuT
   **/
   @ApiModelProperty(value = "Empty or Systems Under Test identification")
+
+
   public String getMemberOfSuT() {
     return memberOfSuT;
   }
@@ -130,6 +138,8 @@ public class FileObject   {
    * @return isBigFile
   **/
   @ApiModelProperty(example = "true", value = "")
+
+
   public Boolean getIsBigFile() {
     return isBigFile;
   }
@@ -148,6 +158,8 @@ public class FileObject   {
    * @return bigFileURL
   **/
   @ApiModelProperty(example = "http://example.com/files/file001.dmp", value = "When is big file, specify the URL for fetching by the EDM or by the Caller")
+
+
   public String getBigFileURL() {
     return bigFileURL;
   }
@@ -166,6 +178,8 @@ public class FileObject   {
    * @return content
   **/
   @ApiModelProperty(example = "Lorem ipsum dolor sit amet", value = "")
+
+
   public String getContent() {
     return content;
   }

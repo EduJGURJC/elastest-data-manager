@@ -23,14 +23,13 @@ tags:
       url: 'http://elastest.io/docs/'
 paths:
   /backup:
-    get:
+    post:
       tags:
         - DataIO
-      summary: Backup all data from the EDM and EBS modules
+      summary: Backup all data from EDM module
       description: >-
-        Backup and create a gzipped tarball with all data for both EDM and EBS
-        modules. Please, notice that EDM and EBS modules are containing all
-        platforms data.
+        Backup and create a gzipped tarball with all data for EDM module.
+        Please, notice that EDM module contains all platforms data.
       operationId: createBackup
       consumes:
         - application/json
@@ -38,37 +37,49 @@ paths:
         - application/json
       responses:
         '200':
-          description: Successful
+          description: Backup Successful
           schema:
-            $ref: '#/definitions/fileObject'
+            $ref: '#/definitions/messageResponse'
         '405':
           description: Invalid input
         default:
           description: unexpected error
           schema:
             $ref: '#/definitions/error'
+  '/restore/{backupId}':
     post:
       tags:
         - DataIO
-      summary: Restore all data for the platform
+      summary: Restore all data for the platform based on backup id
       description: >-
         Download and restore the gzipped tarball with all data for the platform.
         All existing will be overrided.
       operationId: restoreBackup
       consumes:
         - application/json
+      produces:
+        - application/json
       parameters:
-        - in: body
-          name: body
-          description: 'Information about compressed tarball, containing the sut data'
+        - name: backupId
+          in: path
+          description: Define the backup id to be restored
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: 'Information about compressed tarball, containing backup data'
           required: true
           schema:
             $ref: '#/definitions/fileObject'
       responses:
         '200':
-          description: Successful Post
+          description: Restore Successful
+          schema:
+            $ref: '#/definitions/messageResponse'
+        '404':
+          description: Invalid backupId
         '405':
-          description: Invalid input
+          description: Invalid input data
         default:
           description: unexpected error
           schema:
@@ -95,8 +106,8 @@ paths:
           description: unexpected error
           schema:
             $ref: '#/definitions/error'
-  '/sut/{sut}':
-    get:
+  '/sut/backup/{sut}':
+    post:
       tags:
         - DataIO
       summary: Backup all data for a specific SuT
@@ -114,9 +125,9 @@ paths:
           type: string
       responses:
         '200':
-          description: Successful
+          description: SuT Backup Successful
           schema:
-            $ref: '#/definitions/fileObject'
+            $ref: '#/definitions/messageResponse'
         '400':
           description: Invalid SuT supplied or SuT not found
         '405':
@@ -125,6 +136,7 @@ paths:
           description: unexpected error
           schema:
             $ref: '#/definitions/error'
+  '/sut/restore/{sut}':
     post:
       tags:
         - DataIO
@@ -144,16 +156,17 @@ paths:
           description: 'Information about compressed tarball, containing the sut data'
           required: true
           schema:
-            $ref: '#/definitions/fileObject'
+            $ref: '#/definitions/messageResponse'
       responses:
         '200':
-          description: Successful Post
+          description: SuT Restore Successful
         '405':
           description: Invalid input
         default:
           description: unexpected error
           schema:
             $ref: '#/definitions/error'
+  '/sut/{sut}':
     delete:
       tags:
         - DataIO
@@ -176,7 +189,7 @@ paths:
           type: string
       responses:
         '200':
-          description: Successful
+          description: Delete Successful
         default:
           description: unexpected error
           schema:
@@ -204,6 +217,14 @@ definitions:
         type: integer
         format: int64
         example: 6653318
+
+  messageResponse:
+    type: object
+    properties:
+      msg: 
+        type: string
+
+        
   fileObject:
     type: object
     properties:
@@ -240,3 +261,4 @@ definitions:
 externalDocs:
   description: Find out more about Swagger
   url: 'http://swagger.io'
+

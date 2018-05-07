@@ -1,23 +1,18 @@
 package io.swagger.api.testControllers;
 
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 import java.io.File;
 
-import io.swagger.Swagger2SpringBoot;
-import io.swagger.api.BackupApiController;
-import io.swagger.model.InlineResponse200;
-
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -29,8 +24,6 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -38,20 +31,20 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import io.swagger.Swagger2SpringBoot;
+import io.swagger.api.BackupApiController;
+import io.swagger.model.MessageResponse;
+
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration (classes = {
 		Swagger2SpringBoot.class, 
 		BackupApiController.class})
 @WebAppConfiguration
-//@TestPropertySource(properties = { "scriptfile.path = C:/Users/agourg/Desktop/akis1.bat" })
 public class BackupApiControllerTest {
 	
 	private MockMvc mockMvc;
 	
-	@Autowired
-	private MockHttpServletRequest request;
-
 	@Autowired
     private WebApplicationContext webApplicationContext;
 	
@@ -68,45 +61,46 @@ public class BackupApiControllerTest {
 	}
 	
 	@After
-	public void destroy(){
+	public void destroy() {
 		this.mockMvc = null;
 	}
 	
-	@Value("${scriptfile.path}")
-	private String filepath;
+	@Value("${scriptfile.backup.path}")
+	private String backupFilePath;
+	
 	
 	//-------------------- Backup Create --------------------//
 	
 	@Test
-	public void createBackup_GET_415() throws Exception{
+	public void createBackup_GET_415() throws Exception { 
 		mockMvc
-			.perform(get("/backup"))
+			.perform(post("/backup"))
 //			.andDo(MockMvcResultHandlers.print())
 			.andExpect(status().is(415));
 	}
 
 	@Test
-	public void createBackup_GET_404() throws Exception{
+	public void createBackup_GET_405() throws Exception {
 		mockMvc
-			.perform(get("/backup/wrongURL"))
-			.andExpect(status().is(404));
+			.perform(post("/backup/wrongURL"))
+			.andExpect(status().is(405));
 	}
 	
-	@Test
-	public void createBackup_GET_200() throws Exception{
+	@Ignore
+	public void createBackup_GET_200() throws Exception {
 		mockMvc
-			.perform(get("/backup")
+			.perform(post("/backup")
 					.contentType(MediaType.APPLICATION_JSON_UTF8))
 			.andExpect(status().isOk());
 	}
 	
 	@Test
 	public void createBackup_GET_417_FileNotExists() throws Exception {
-		ReflectionTestUtils.setField(bac, "filepath", "/tmp/wrongFileName.sh");
+		ReflectionTestUtils.setField(bac, "backupFilePath", "../deployment/wrongFileName.sh");
 
 		Mockito.doCallRealMethod().when(bac).createBackup();
 
-		ResponseEntity<InlineResponse200> r = new ResponseEntity<InlineResponse200>(HttpStatus.EXPECTATION_FAILED);
+		ResponseEntity<MessageResponse> r = new ResponseEntity<MessageResponse>(HttpStatus.EXPECTATION_FAILED);
 		when(bac.createBackup()).thenReturn(r);
 		bac.createBackup();
 		
@@ -114,23 +108,22 @@ public class BackupApiControllerTest {
 	
 	@Test
 	public void createBackup_GET_200_FileExists_NotDirectory() throws Exception {
-		ReflectionTestUtils.setField(bac, "filepath", filepath);
+		ReflectionTestUtils.setField(bac, "backupFilePath", backupFilePath);
 	
 		Mockito.doCallRealMethod().when(bac).createBackup();
 		
-		File file = new File(filepath);
+		File file = new File(backupFilePath);
 		assertTrue(file.exists());
 		assertTrue(!file.isDirectory());
 
-		ResponseEntity<InlineResponse200> r = new ResponseEntity<InlineResponse200>(HttpStatus.OK);
+		ResponseEntity<MessageResponse> r = new ResponseEntity<MessageResponse>(HttpStatus.OK);
 		when(bac.createBackup()).thenReturn(r);
 		bac.createBackup();
-		
 	}
 
 	@Test
 	public void createBackup_GET_417_FileExists_IsDirectory() throws Exception {
-		ReflectionTestUtils.setField(bac, "filepath", "../deployment");
+		ReflectionTestUtils.setField(bac, "backupFilePath", "../deployment");
 
 		Mockito.doCallRealMethod().when(bac).createBackup();
 		
@@ -138,50 +131,14 @@ public class BackupApiControllerTest {
 		assertTrue(file.exists());
 		assertTrue(file.isDirectory());
 
-		ResponseEntity<InlineResponse200> r = new ResponseEntity<InlineResponse200>(HttpStatus.EXPECTATION_FAILED);
+		ResponseEntity<MessageResponse> r = new ResponseEntity<MessageResponse>(HttpStatus.EXPECTATION_FAILED);
 		when(bac.createBackup()).thenReturn(r);
 		bac.createBackup();
 		
 	}
 	
 	
-	//-------------------- Backup Restore --------------------//
-	
-	@Test
-	public void restoreBackup_POST_415() throws Exception{
-		mockMvc
-			.perform(post("/backup"))
-			.andExpect(status().is(415));
-	}
-	
-	@Test
-	public void restoreBackup_POST_400() throws Exception{
-		mockMvc
-			.perform(post("/backup")
-					.contentType(MediaType.APPLICATION_JSON_UTF8))
-			.andExpect(status().is(400));
-	}
-	
-	@Test
-	public void restoreBackup_POST_400_JSON_BAD() throws Exception{
-		mockMvc
-			.perform(post("/backup")
-					.contentType(MediaType.APPLICATION_JSON_UTF8) 
-					.content( BackupApiControllerTest.jsonResponse_BAD() ))
-			.andExpect(status().is(400));
-	}
-	
-	@Test
-	public void restoreBackup_POST_200() throws Exception{
-		mockMvc
-			.perform(post("/backup")
-					.contentType(MediaType.APPLICATION_JSON_UTF8)
-					.content( BackupApiControllerTest.jsonResponse_GOOD() ))
-			.andExpect(status().isOk());
-	}
-	
 
-	
 	//-------------------- JSON ObjectAsString --------------------//
 	
 	// JSON Request Body - GOOD

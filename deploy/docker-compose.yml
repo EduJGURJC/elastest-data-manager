@@ -2,12 +2,14 @@ version: '3'
 services:
   edm-hdfs-namenode:
     image: elastest/edm-hadoop:latest
-    command: hdfs namenode
+    command: [ "sh", "-c", "/namenode.sh" ]
+    privileged: true
     ports:
         - "50070:50070"
         - "9000:9000"
         - "8020:8020"
-    hostname: hdfs-namenode
+        - "8001:8001"
+    hostname: edm-hdfs-namenode
     networks:
         - elastest
 
@@ -183,7 +185,7 @@ services:
       - elastest
 
   edm-mysql:
-    image: mysql:5.7
+    image: elastest/edm-mysql:latest
     ports:
       - "3306:3306"
     environment:
@@ -193,8 +195,6 @@ services:
       MYSQL_PASSWORD: elastest
     volumes:
       - edm-mysql:/var/lib/mysql
-      - ./mysql/init:/docker-entrypoint-initdb.d
-      - ./mysql/config:/etc/mysql/conf.d
     # restart: always
     networks:
       - elastest
